@@ -27,7 +27,7 @@ This is the computer that will host Ollama and run the AI model.
 
 ---
 
-## Step 1 — Install Ollama
+## Step 1 — Install Ollama (Linux Only)
 
 ### Linux
 
@@ -36,24 +36,6 @@ Open Terminal and run:
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ```
-
-### macOS
-
-Use the same command above, or download it here:
-
-[https://ollama.com/download/mac](https://ollama.com/download/mac)
-
-### Windows
-
-Open PowerShell and run:
-
-```powershell
-irm https://ollama.com/install.ps1 | iex
-```
-
-Or download it here:
-
-[https://ollama.com/download/windows](https://ollama.com/download/windows)
 
 ---
 
@@ -181,14 +163,6 @@ sudo ufw allow 11434/tcp
 ```bash
 sudo firewall-cmd --add-port=11434/tcp --permanent
 sudo firewall-cmd --reload
-```
-
-### Windows
-
-Open PowerShell as Administrator and run:
-
-```powershell
-New-NetFirewallRule -DisplayName "Allow Ollama Port 11434" -Direction Inbound -LocalPort 11434 -Protocol TCP -Action Allow
 ```
 
 ---
