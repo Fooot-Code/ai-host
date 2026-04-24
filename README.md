@@ -254,6 +254,10 @@ instead of the raw IP.
 
 # Part 3 — Run the Example Assignment Helper App
 
+## Step 0 — Access Example without Installing Anything
+If you want, you can access the example by navigating to the website hosted at [https://fooot-code.github.io/ai-host/](https://fooot-code.github.io/ai-host/)
+This will allow you to use the AI helper without needing to install anything below. All you would have to do is follow the steps above, starting at [Step 1](#part-1--server-computer-the-computer-running-the-ai), as well as [Part 4](#part-4--using-the-assignment-helper).
+
 ## Step 1 — Install Visual Studio Code
 
 [https://code.visualstudio.com/download](https://code.visualstudio.com/download)
