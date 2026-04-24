@@ -1,86 +1,447 @@
-# Host Ollama on a Server
-### On Server Computer (computer to host AI)
-1. Install Ollama
-    - Linux:
-        ```bash
-        curl -fsSL https://ollama.com/install.sh | sh
-        ```
-        Mac is the same, but you can also install [here](https://ollama.com/download/mac)
-    - Windows
-        ```bash
-        irm https://ollama.com/install.ps1 | iex
-        ```
-        Or [here](https://ollama.com/download/windows)
+# Host Ollama on a Server (Beginner-Friendly Setup Guide)
 
+This guide helps you run Ollama on one computer (“Server Computer”) and access it from another computer (“Client Computer”) on your home network.
 
+This is useful if:
 
-2. Run a specific model
-    1. Configure Ollama to be accessable from another computer
-        1. ```bash
-            sudo systemctl edit ollama
-            ```
-        2. Type "i" to enter insert mode for the Vim editor (more info [here](https://www.redhat.com/en/blog/beginners-guide-vim))
-        3. Paste this by using ctrl+shift+v (or right click -> Paste): 
-            ```bash
-            [Service]
-            Environment="OLLAMA_HOST=0.0.0.0"
-            Environment="OLLAMA_ORIGINS=*"
-            ```
-            Exactly after where it says
-            ```bash
-                ### Editing /etc/systemd/system/ollama.service.d/override.conf
-                ### Anything between here and the comment below will become the contents of the drop-in file
-            ```
-        4. Hit escape, then type ":wq" and press enter
-        5. Run these two commands to save the changes
-            ```bash
-            sudo systemctl daemon-reload
-            sudo systemctl restart ollama
-            ```
-        6. If it worked, you should see `*:11434` or `0.0.0.0:11434` when `ss -tulpn | grep 11434` is run (Windows equivalent is hard to describe, Google the goat for that)
-        
-    2. Run the model
-        ```bash
-        ollama run mistral
-        ```
-        if using Mistral. Mistral can be replaced by other models. To see list, look [here](https://ollama.com/search)
+* one computer is more powerful and will run the AI
+* another computer (like a laptop) will use the AI through a browser app
 
-3. (OPTIONAL) Look at running ports to figure out where Ollama is running. Its defualt port is port 11434, but run this command just in case.
-    ```bash
-    sudo ss -tulpn | grep ollama
-    ```
+At the end, you’ll be able to connect using:
 
-4. Expose the port to your network
-    - Linux/Mac
-        - Ubuntu and Debian-based distros
-            ```bash
-            sudo ufw allow 11434/tcp
-            ```
-        - RHEL, CentOS, Fedora, Rocky Linux, and AlmaLinux distros
-            ```bash
-            sudo firewall-cmd --add-port=11434/tcp --permanent
-            ```
-            
-    - Windows - This is a little more complicated. 
-        - Either run this using [Powershell](https://learn.microsoft.com/en-au/answers/questions/5863977/how-to-access-power-shell-on-win-11):
-        ```bash
-        New-NetFirewallRule -DisplayName "Allow Custom Port" -Direction Inbound -LocalPort 11434 -Protocol TCP -Action Allow
-        ```
-        - Or follow these steps located [here](https://www.databasemart.com/kb/open-port-in-windows-firewall)
-5. Ollama should now be able to be accessed from any computer. Before moving to the other computer, take note of your ip address using the command
-    ```bash
-    ip -4 addr
-    ```
-    Output should look something like this
-    ![](ipExample.png)
-    Where the ip address is under the wlp6s0 interface (basically anything "w" is Wi-Fi)
-    - If having trouble, assume ip starts with 192.168, most home networks have this network bit start
-### On Client Computer
-1. Open Notepad by right clicking on the application and selecting "Run as administrator." 
-2. Navigate to `File > Open`, and then find `C:\Windows\System32\drivers\etc\hosts`
-3. Take the IP from before (e.g. `192.168.1.193`) and type it, along with `ai-host.local`. It should look something like this:
+```text
+http://ai-host.local:11434
+```
 
-    ![alt text](hostsExample.png)
-    - This will now take the IP address from the server and map it to `ai-host.local`, allowing you to access Ollama using `ai-host.local` instead of having to remember a full IP Address every time.
-4. Save the file
-5. You will now be able to write programs using `ai-host.local:11434`
+instead of remembering an IP address like:
+
+```text
+http://192.168.1.193:11434
+```
+
+---
+
+# Part 1 — Server Computer (The Computer Running the AI)
+
+This is the computer that will host Ollama and run the AI model.
+
+---
+
+## Step 1 — Install Ollama
+
+### Linux
+
+Open Terminal and run:
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+### macOS
+
+Use the same command above, or download it here:
+
+[https://ollama.com/download/mac](https://ollama.com/download/mac)
+
+### Windows
+
+Open PowerShell and run:
+
+```powershell
+irm https://ollama.com/install.ps1 | iex
+```
+
+Or download it here:
+
+[https://ollama.com/download/windows](https://ollama.com/download/windows)
+
+---
+
+## Step 2 — Allow Other Computers to Access Ollama
+
+By default, Ollama only listens on your own computer.
+
+We need to make it accessible from other devices on your network.
+
+### 2.1 Edit the Ollama Service Settings
+
+Run:
+
+```bash
+sudo systemctl edit ollama
+```
+
+This opens a text editor called **Vim**.
+
+### 2.2 Enter Insert Mode
+
+Press:
+
+```text
+i
+```
+
+This lets you type.
+
+### 2.3 Paste This Configuration
+
+Paste this exactly:
+
+```ini
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+Environment="OLLAMA_ORIGINS=*"
+```
+
+Paste it under the section that says:
+
+```text
+### Editing /etc/systemd/system/ollama.service.d/override.conf
+### Anything between here and the comment below will become the contents of the drop-in file
+```
+
+### 2.4 Save and Exit
+
+1. Press `Esc`
+2. Type:
+
+```text
+:wq
+```
+
+3. Press Enter
+
+This means **write + quit**.
+
+### 2.5 Reload the Service
+
+Run:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
+```
+
+### 2.6 Verify It Worked
+
+Run:
+
+```bash
+ss -tulpn | grep 11434
+```
+
+You want to see something like:
+
+```text
+*:11434
+```
+
+or
+
+```text
+0.0.0.0:11434
+```
+
+That means Ollama is listening on your network.
+
+---
+
+## Step 3 — Download and Run a Model
+
+Example using **Mistral**:
+
+```bash
+ollama run mistral
+```
+
+This downloads the model the first time and then starts it.
+
+You can replace `mistral` with another model.
+
+Browse available models here:
+
+[https://ollama.com/search](https://ollama.com/search)
+
+---
+
+## Step 4 — Open Firewall Port 11434
+
+Ollama uses port **11434** by default.
+
+You must allow this port through your firewall.
+
+### Ubuntu / Debian
+
+```bash
+sudo ufw allow 11434/tcp
+```
+
+### Fedora / RHEL / Rocky / AlmaLinux
+
+```bash
+sudo firewall-cmd --add-port=11434/tcp --permanent
+sudo firewall-cmd --reload
+```
+
+### Windows
+
+Open PowerShell as Administrator and run:
+
+```powershell
+New-NetFirewallRule -DisplayName "Allow Ollama Port 11434" -Direction Inbound -LocalPort 11434 -Protocol TCP -Action Allow
+```
+
+---
+
+## Step 5 — Find Your Server IP Address
+
+Run:
+
+```bash
+ip -4 addr
+```
+
+Look for something like:
+
+```text
+192.168.1.193
+```
+
+Usually:
+
+* `wlan0`, `wlp...` = Wi-Fi
+* `eth0`, `enp...` = Ethernet
+
+Most home networks use:
+
+```text
+192.168.x.x
+```
+
+Write this IP down — you’ll need it on the client computer.
+
+---
+
+# Part 2 — Client Computer (The Computer Using the AI)
+
+This is the computer where you’ll open the assignment helper app.
+
+## Step 1 — Create a Friendly Hostname
+
+Instead of typing the IP every time, we’ll create:
+
+```text
+ai-host.local
+```
+
+## Step 2 — Open Notepad as Administrator (Windows)
+
+1. Search for **Notepad**
+2. Right click it
+3. Choose **Run as administrator**
+
+## Step 3 — Open the Hosts File
+
+Go to:
+
+```text
+File → Open
+```
+
+Then open:
+
+```text
+C:\Windows\System32\drivers\etc\hosts
+```
+
+You may need to change the file type dropdown to **All Files**.
+
+## Step 4 — Add This Line
+
+At the bottom of the file, add:
+
+```text
+192.168.1.193    ai-host.local
+```
+
+Replace `192.168.1.193` with your actual server IP.
+
+## Step 5 — Save the File
+
+Now your computer can use:
+
+```text
+http://ai-host.local:11434
+```
+
+instead of the raw IP.
+
+---
+
+# Part 3 — Run the Example Assignment Helper App
+
+## Step 1 — Install Visual Studio Code
+
+[https://code.visualstudio.com/download](https://code.visualstudio.com/download)
+
+## Step 2 — Install Git
+
+[https://git-scm.com/install/windows](https://git-scm.com/install/windows)
+
+## Step 3 — Open Terminal
+
+Start Menu → search for:
+
+```text
+Terminal
+```
+
+and press Enter.
+
+## Step 4 — Clone the Project
+
+Run:
+
+```bash
+mkdir -p ~/Documents/Github
+cd ~/Documents/Github
+git clone https://github.com/Fooot-Code/ai-host.git
+code ai-host
+```
+
+## Step 5 — Install Live Server Extension
+
+[https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
+
+## Step 6 — Launch the Website
+
+Press:
+
+```text
+Ctrl + Shift + P
+```
+
+Type:
+
+```text
+Live
+```
+
+Then choose:
+
+```text
+Live Server: Open With Live Server
+```
+
+Your browser should open automatically.
+
+---
+
+# Part 4 — Using the Assignment Helper
+
+## Host
+
+Use:
+
+```text
+http://ai-host.local:11434
+```
+
+or:
+
+```text
+http://YOUR-IP:11434
+```
+
+Format must be:
+
+```text
+http://{host}:{port}
+```
+
+## Model
+
+Use:
+
+```text
+mistral:latest
+```
+
+if following this guide.
+
+## Assignment Topic
+
+Example:
+
+```text
+The Effects of Social Media on Student Learning
+```
+
+## Rubric / Instructions
+
+Paste your assignment instructions here.
+
+Include:
+
+* grading rubric
+* required formatting
+* word count
+* sources required
+* teacher instructions
+
+The more detail you give, the better the output.
+
+## Final Step
+
+Click:
+
+```text
+Generate Assignment
+```
+
+Then wait while Ollama writes the response.
+
+Large assignments may take a few minutes.
+
+This is normal.
+
+---
+
+# Troubleshooting
+
+## “It says Generating forever”
+
+Usually this means:
+
+* wrong model name
+* firewall issue
+* Ollama not running
+* browser blocked by CORS
+
+Test with:
+
+```bash
+curl http://YOUR-IP:11434/api/tags
+```
+
+If that works, your setup is probably correct.
+
+## “Host not allowed”
+
+Use:
+
+* `.local`
+* `192.168.x.x`
+* `10.x.x.x`
+* `172.x.x.x`
+
+Public internet addresses are intentionally blocked for safety.
+
+## “Can’t connect”
+
+Double check:
+
+* Ollama is running
+* firewall port 11434 is open
+* correct IP address
+* both computers are on the same network

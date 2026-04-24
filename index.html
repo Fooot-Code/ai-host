@@ -2,205 +2,261 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ollama Network Chat</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ollama Assignment Helper</title>
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #0f172a, #1e293b);
-        color: #e2e8f0;
-        display: flex;
-        height: 100vh;
-        justify-content: center;
-        align-items: center;
-    }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+  }
 
-    .container {
-        width: 90%;
-        max-width: 900px;
-        background: rgba(15, 23, 42, 0.9);
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        display: flex;
-        flex-direction: column;
-        height: 90vh;
-    }
-
-    h1 {
-        margin: 0 0 10px;
-        font-size: 20px;
-        text-align: center;
-        color: #60a5fa;
-    }
-
-    .settings {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-
-    input, textarea, button {
-        border-radius: 10px;
-        border: none;
-        padding: 10px;
-        font-size: 14px;
-    }
-
-    input {
-        flex: 1;
-        background: #1e293b;
-        color: white;
-    }
-
-    textarea {
+  .app {
     width: 100%;
-    height: 80px;
-    resize: none;
-    background: #0f172a;
+    max-width: 1100px;
+    background: rgba(15, 23, 42, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    padding: 24px;
+  }
+
+  h1 {
+    margin-top: 0;
+    text-align: center;
+    color: #60a5fa;
+  }
+
+  .subtitle {
+    text-align: center;
+    opacity: 0.8;
+    margin-bottom: 24px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .panel {
+    background: #111827;
+    border-radius: 16px;
+    padding: 18px;
+  }
+
+  label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+
+  input, textarea, select, button {
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  input, textarea, select {
+    background: #1f2937;
     color: white;
-    margin-bottom: 12px; /* 👈 adds space below textarea */
-    }
+    margin-bottom: 14px;
+  }
 
-    .row {
-        display: flex;
-        gap: 10px;
-        margin-top: 8px; /* 👈 pushes buttons down */
-        padding-top: 5px;
-    }
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
 
-    button {
-        background: #2563eb;
-        color: white;
-        cursor: pointer;
-        transition: 0.2s;
-    }
+  button {
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+  }
 
-    button:hover {
-        background: #1d4ed8;
-    }
+  button:hover {
+    background: #1d4ed8;
+  }
 
-    .chat {
-        flex: 1;
-        overflow-y: auto;
-        background: #0b1220;
-        border-radius: 12px;
-        padding: 10px;
-        margin-bottom: 10px;
-    }
+  .row {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+  }
 
-    .msg {
-        margin: 10px 0;
-        padding: 10px;
-        border-radius: 10px;
-        line-height: 1.4;
-        white-space: pre-wrap;
-    }
+  .row button {
+    flex: 1;
+  }
 
-    .user {
-        background: #1d4ed8;
-        align-self: flex-end;
-    }
+  .output {
+    min-height: 500px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    background: #0b1220;
+    border-radius: 14px;
+    padding: 18px;
+    overflow-y: auto;
+  }
 
-    .bot {
-        background: #334155;
-    }
+  .status {
+    margin-top: 12px;
+    font-size: 13px;
+    opacity: 0.75;
+    text-align: center;
+  }
 
-    .status {
-        font-size: 12px;
-        opacity: 0.7;
-        text-align: center;
-        margin-top: 5px;
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: 1fr;
     }
+  }
 </style>
 </head>
-
 <body>
-<div class="container">
-    <h1>Ollama Network Chat</h1>
+<div class="app">
+  <h1>Ollama Assignment Helper</h1>
+  <div class="subtitle">Provide a topic + rubric and generate a structured assignment draft using your remote Ollama model.</div>
 
-    <div class="settings">
-        <input id="host" placeholder="Host (e.g. http://192.168.1.50:11434)" />
-        <input id="model" placeholder="Model (e.g. mistral)" value="mistral" />
+  <div class="grid">
+    <div class="panel">
+      <label>Ollama Host</label>
+      <input id="host" value="http://brennon-fedora.local:11434" />
+
+      <label>Model</label>
+      <input id="model" value="mistral:latest" />
+
+      <label>Assignment Topic</label>
+      <input id="topic" placeholder="Example: Effects of Social Media on Student Learning" />
+
+      <label>Assignment Type</label>
+      <select id="type">
+        <option>Essay</option>
+        <option>Research Paper</option>
+        <option>Discussion Post</option>
+        <option>Reflection</option>
+        <option>Report</option>
+        <option>Presentation Script</option>
+      </select>
+
+      <label>Rubric / Instructions</label>
+      <textarea id="rubric" placeholder="Paste assignment instructions and grading rubric here..."></textarea>
+
+      <label>Additional Notes (optional)</label>
+      <textarea id="notes" placeholder="Tone, required sources, word count, formatting style, etc."></textarea>
+
+      <div class="row">
+        <button onclick="generateAssignment()">Generate Assignment</button>
+        <button onclick="clearAll()">Clear</button>
+      </div>
+
+      <div class="status" id="status">Ready</div>
     </div>
 
-    <div class="chat" id="chat"></div>
-
-    <textarea id="prompt" placeholder="Type your message..."></textarea>
-
-    <div class="row">
-        <button onclick="sendPrompt()">Send</button>
-        <button onclick="clearChat()">Clear</button>
+    <div class="panel">
+      <label>Generated Output</label>
+      <div id="output" class="output">Your generated assignment will appear here.</div>
+      <div class="row">
+        <button onclick="copyOutput()">Copy Output</button>
+      </div>
     </div>
-
-    <div class="status" id="status"></div>
+  </div>
 </div>
 
 <script>
-const chat = document.getElementById("chat");
-const statusEl = document.getElementById("status");
+const allowedPatterns = [".local", "192.168.", "10.", "172."];
 
-function addMessage(text, cls) {
-    const div = document.createElement("div");
-    div.className = "msg " + cls;
-    div.textContent = text;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-    return div;
+function isAllowedHost(host) {
+  try {
+    const url = new URL(host);
+    return allowedPatterns.some(p => url.hostname.includes(p) || url.hostname.startsWith(p));
+  } catch {
+    return false;
+  }
 }
 
-function clearChat() {
-    chat.innerHTML = "";
+function setStatus(message) {
+  document.getElementById("status").textContent = message;
 }
 
-async function sendPrompt() {
-    const host = document.getElementById("host").value.trim();
-    const model = document.getElementById("model").value.trim();
-    const prompt = document.getElementById("prompt").value.trim();
+function clearAll() {
+  document.getElementById("topic").value = "";
+  document.getElementById("rubric").value = "";
+  document.getElementById("notes").value = "";
+  document.getElementById("output").textContent = "Your generated assignment will appear here.";
+  setStatus("Cleared");
+}
 
-    if (!host || !model || !prompt) {
-        alert("Please fill host, model, and prompt.");
-        return;
+function copyOutput() {
+  const text = document.getElementById("output").textContent;
+  navigator.clipboard.writeText(text);
+  setStatus("Copied to clipboard");
+}
+
+function buildPrompt() {
+  const topic = document.getElementById("topic").value.trim();
+  const type = document.getElementById("type").value;
+  const rubric = document.getElementById("rubric").value.trim();
+  const notes = document.getElementById("notes").value.trim();
+
+  return `You are helping write a strong academic ${type}.\n\nAssignment Topic:\n${topic}\n\nRubric / Instructions:\n${rubric}\n\nAdditional Notes:\n${notes}\n\nPlease complete the full assignment professionally, clearly, and in a way that matches the rubric exactly. Use proper structure, headings when appropriate, and strong academic writing. Do not explain what you are doing—just provide the completed assignment.`;
+}
+
+async function generateAssignment() {
+  const host = document.getElementById("host").value.trim();
+  const model = document.getElementById("model").value.trim();
+  const topic = document.getElementById("topic").value.trim();
+  const rubric = document.getElementById("rubric").value.trim();
+  const output = document.getElementById("output");
+
+  if (!host || !model || !topic || !rubric) {
+    alert("Please complete host, model, topic, and rubric.");
+    return;
+  }
+
+  if (!isAllowedHost(host)) {
+    alert("Only local network or .local Ollama hosts are allowed.");
+    return;
+  }
+
+  const prompt = buildPrompt();
+  output.textContent = "Generating assignment...";
+  setStatus("Sending request to Ollama...");
+
+  try {
+    const response = await fetch(`${host}/api/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model,
+        prompt,
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
 
-    document.getElementById("prompt").value = "";
-
-    addMessage(prompt, "user");
-    const botMsg = addMessage("Thinking...", "bot");
-
-    statusEl.textContent = "Sending request...";
-
-    try {
-        // NOTE: This uses Ollama's local HTTP API
-        const res = await fetch(`${host}/api/generate`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: model,
-                prompt: prompt,
-                stream: false
-            })
-        });
-
-        if (!res.ok) {
-            throw new Error("HTTP error " + res.status);
-        }
-
-        const data = await res.json();
-
-        // Ollama returns { response: "text" }
-        botMsg.textContent = data.response || "(no response)";
-        statusEl.textContent = "Done";
-    } catch (err) {
-        botMsg.textContent = "Error: " + err.message;
-        statusEl.textContent = "Failed";
-    }
+    const data = await response.json();
+    output.textContent = data.response || "No response returned.";
+    setStatus("Assignment generated successfully");
+  } catch (error) {
+    output.textContent = `Error: ${error.message}`;
+    setStatus("Request failed");
+  }
 }
 </script>
-
 </body>
 </html>
