@@ -73,7 +73,7 @@
     ```
     Output should look something like this
     ![](ipExample.png)
-    Where the ip address iw under the wlp6s0 interface (basically anything "w" is Wi-Fi)
+    Where the ip address is under the wlp6s0 interface (basically anything "w" is Wi-Fi)
     - If having trouble, assume ip starts with 192.168, most home networks have this network bit start
 ### On Client Computer
 1. Open Notepad by right clicking on the application and selecting "Run as administrator." 
