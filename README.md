@@ -24,14 +24,14 @@
             ```bash
             [Service]
             Environment="OLLAMA_HOST=0.0.0.0"
+            Environment="OLLAMA_ORIGINS=*"
             ```
             Exactly after where it says
             ```bash
                 ### Editing /etc/systemd/system/ollama.service.d/override.conf
                 ### Anything between here and the comment below will become the contents of the drop-in file
-
             ```
-        4. Hit escape, then type "wq" and press enter
+        4. Hit escape, then type ":wq" and press enter
         5. Run these two commands to save the changes
             ```bash
             sudo systemctl daemon-reload
@@ -58,7 +58,7 @@
             ```
         - RHEL, CentOS, Fedora, Rocky Linux, and AlmaLinux distros
             ```bash
-            sudo firewall-cmd --add-port=11434/tcp
+            sudo firewall-cmd --add-port=11434/tcp --permanent
             ```
             
     - Windows - This is a little more complicated. 
